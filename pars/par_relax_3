@@ -1,0 +1,52 @@
+START GenChain
+SCTypeFrom	=	refpdb
+SeqString	=	
+RefPDBFile	=	pdb_7
+AllFixedSites	=	
+MCFixedSites	=	
+TypeInCoil	=	
+TypeInHelix	=	
+TypeInStrand	=	
+OutPutPDBFile	=	pdb_8
+END GenChain
+START SD
+DoShake	=	1
+Temperatures	=	0.2
+TemperatureGroups	=	all
+AnnealingScheme	=	
+FrictionCoeff	=	10.0
+NeighborListSteps	=	50
+TimeStep	=	0.002
+TrajFile	=
+NTrajSteps	=	2000
+FixMainChain	=	0
+NumberStep	=	100
+RandomSeed	=	4398
+END SD
+START ForceField
+StericWeight	=	1.4
+PhiPsiWeight	=	2.0
+SideConfWeight	=	2.4
+SCPackingWeight	=	3.1
+LSWeight	=	0.5
+LocalHBWeight	=	0.6
+PairPackingWeight	=	0.32
+ShadowWeight	=	0
+CoreRegion	=	
+CoreRegionBasePDB	=	
+RgRestrain	=	5000.0 -3
+HelixRestrains	=	
+StrandRestrains	=	
+LoopRegionWeights	=
+StrandPairRestrains	=	
+KresStrandPair	=	50
+DisRestrains	=	
+ExtendRestrains	=	
+SubStructureRestrains	=	
+TotalRMSDRestrain	=	
+RMSDRestrainedRegion	=	
+EAttraction	=	0
+RAttractionOff	=	100
+RAttractionSwitch	=	80
+SideChainMMSteric	=	0
+END ForceField

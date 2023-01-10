@@ -1,0 +1,38 @@
+/*
+ * chemicalgroup.h
+ *
+ *  Created on: 2018年4月19日
+ *      Author: hyliu
+ */
+
+#ifndef CHEMICALGROUP_H_
+#define CHEMICALGROUP_H_
+#include "dataio/inputlines.h"
+#include "geometry/xyz.h"
+#include "fullsite/fullsite.h"
+#include <string>
+#include <vector>
+#include <memory>
+#include <map>
+
+namespace NSPproteinrep{
+struct Atom3Unit {
+	static std::vector<Atom3Unit> getunits(std::string res="");
+	std::string name;
+	int center_atom;
+	std::string res;
+	std::vector<std::string> atoms;
+	//std::set<std::vector<std::string>> aaatoms;
+};
+
+bool unitequal(Atom3Unit a1, Atom3Unit a2);
+
+typedef std::pair<Atom3Unit,std::vector<std::vector<NSPgeometry::XYZ>>> UnitAssemble;
+void completeunit(std::vector<UnitAssemble> &uas);
+void unitinsidechain(std::vector<UnitAssemble> &uas, const std::vector<std::vector<FullSite>> &conf);
+void unitinmainchain(std::vector<UnitAssemble> &uas, const std::vector<std::vector<FullSite>> &conf);
+void unitinprotein(std::vector<UnitAssemble> &uas, const std::vector<std::vector<FullSite>> &conf);
+}
+
+
+#endif /* CHEMICALGROUP_H_ */

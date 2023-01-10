@@ -1,0 +1,61 @@
+PROJECT "Using a backbone-centered statistical energy to design diverse cavity-containing proteins"
+
+
+
+The project will run in Linux.
+
+
+
+
+Before designing cavity-containing proteins, user must:
+
+1. extract high quality loop lib, and put all loops in folder named hqll
+
+2. install stride to calculate secondary structure
+
+3. install ABACUS2 to design sequence
+
+4. install alphafold2 to predict structure
+
+5. compail code of modified SCUBA package
+
+6. set environment variate:
+	export ABACUS_DATAPATH={CUR_DIR}/energy_data/
+	CUR_DIR is current directory
+
+User could move executable file in src/build/test/ to ~/bin/ to use it directly.
+
+
+
+Process to compail modified SCUBA package (command lines in shell):
+
+1. if ~/lib/ exist:
+	mv lib/* ~/lib/
+   else:
+	mv lib ~/
+   lable dir of ~ as libdir (such as "/home/username/")
+
+2. cd code
+
+3. change line 18 of CMakeLists.txt as "SET(ENV{LD_LIBRARY_PATH} "${PROJECT_BINARY_DIR}/lib:/usr/local/lib:/usr/local/lib64:${libdir}/lib:$ENV{LD_LIBRARY_PATH}")"
+
+4. mkdir build
+
+5. cd build
+
+6. cmake ..
+
+7. make
+
+if successfully, all executable projects will be found in test/
+
+
+
+After compiling, user can design following as run.sh.
+
+run.sh shows how to generate proteins with 10 initial backbone. If need more protein(such as 10000), user should change 10 to 10000 in pars/par_initial_chain_gen and run.sh.
+
+After running run.sh, user can get many decoys and can use other tools (such alphafold2) to test the quality of sequence.
+
+Note that run.sh will run in serially, it is better to run parallel.
+

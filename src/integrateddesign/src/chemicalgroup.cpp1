@@ -1,0 +1,143 @@
+/*
+ * chemicalgroup.cpp
+ *
+ *  Created on: 2018年4月20日
+ *      Author: hyliu
+ */
+#include "integrateddesign/chemicalgroup.h"
+#include "dataio/datapaths.h"
+#include "dataio/inputlines.h"
+#include <iostream>
+#include <fstream>
+#include <map>
+using namespace NSPproteinrep;
+
+bool NSPproteinrep::unitequal(Atom3Unit a1, Atom3Unit a2) {
+	return (a1.center_atom==a2.center_atom)&&(a1.res==a2.res)&&(a1.atoms==a2.atoms);
+}
+
+std::vector<Atom3Unit> Atom3Unit::getunits(std::string res) {
+	static std::map<std::string,std::vector<Atom3Unit>> aus;
+	if(aus.empty()) {
+		std::string filename="chemgrps.dat";
+		std::string file=NSPdataio::datafilename(filename);
+		NSPdataio::InputLines inputlines;
+		inputlines.init(file,'#');
+		int lidx=0;
+		while (lidx<inputlines.size()){
+			std::vector<std::string> &words=inputlines[lidx++];
+			if(lidx==1) {
+				int ii=std::stoi(words[0]);
+				lidx+=ii;
+				continue;
+			}
+			int ix=std::stoi(words.back());
+			if(ix<1) continue;
+			aus.insert({words[0],std::vector<Atom3Unit>()});
+			std::vector<Atom3Unit> &au=aus.at(words[0]);
+			for(int i=0;i<ix;i++) {
+				std::vector<std::string> &words1=inputlines[lidx++];
+				Atom3Unit a;
+				a.res=words[0];
+				a.name=words1[0];
+				a.center_atom=std::stoi(words1[1]);
+				int i1=std::stoi(words1[2]);
+				int i2=std::stoi(words1[3]);
+				int i3=std::stoi(words1[4]);
+				a.atoms.push_back(words[i1]);
+				a.atoms.push_back(words[i2]);
+				a.atoms.push_back(words[i3]);
+				au.push_back(a);
+			}
+		}
+	}
+	if(res.empty()) {
+		std::vector<Atom3Unit> tot;
+		for(auto &au:aus) {
+			for(int i=0;i<au.second.size();i++) {
+				tot.push_back(au.second[i]);
+			}
+		}
+		return tot;
+	}
+	if(aus.find(res)==aus.end()) return std::vector<Atom3Unit>();
+	return aus.at(res);
+}
+
+void NSPproteinrep::completeunit(std::vector<UnitAssemble> &uas) {
+	std::vector<Atom3Unit> as=Atom3Unit::getunits("");
+	for(auto &a:as) {
+		uas.push_back({a,std::vector<std::vector<NSPgeometry::XYZ>>()});
+	}
+}
+
+void NSPproteinrep::unitinsidechain(std::vector<UnitAssemble> &uas,
+		const std::vector<std::vector<FullSite>> &conf) {
+	for(auto &fss:conf) {
+		for(FullSite fs:fss) {
+			std::vector<Atom3Unit> aus=Atom3Unit::getunits(fs.resname());
+			if(aus.empty()) continue;
+			for(auto &au:aus) {
+				std::vector<NSPgeometry::XYZ> crds;
+				for(std::string &an:au.atoms) {
+					crds.push_back(fs.getcrd(an));
+				}
+				assert(crds.size()==3);
+				for(auto &ua:uas) {
+					if(unitequal(ua.first,au)) {
+						ua.second.push_back(crds);
+						break;
+					}
+				}
+			}
+		}
+	}
+}
+
+void NSPproteinrep::unitinmainchain(std::vector<UnitAssemble> &uas,
+		const std::vector<std::vector<FullSite>> &conf) {
+	std::vector<Atom3Unit> aus=Atom3Unit::getunits("MC");
+	for(auto &fss:conf) {
+		for(int i=0;i<fss.size()-1;i++) {
+			std::map<std::string,NSPgeometry::XYZ> atom;
+			atom.insert({"CAP",fss[i].getcrd("CA")});
+			atom.insert({"CP",fss[i].getcrd("C")});
+			atom.insert({"OP",fss[i].getcrd("O")});
+			atom.insert({"NB",fss[i+1].getcrd("N")});
+			atom.insert({"CAB",fss[i+1].getcrd("CA")});
+			for(Atom3Unit &au:aus) {
+				std::vector<NSPgeometry::XYZ> crds;
+				for(std::string &an:au.atoms) {
+					crds.push_back(atom.at(an));
+				}
+				assert(crds.size()==3);
+				for(auto &ua:uas) {
+					if(unitequal(ua.first,au)) {
+						ua.second.push_back(crds);
+						break;
+					}
+				}
+			}
+		}
+		int ix=fss.size()-1;
+		std::vector<NSPgeometry::XYZ> crds;
+		crds.push_back(fss[ix].getcrd("O"));
+		crds.push_back(fss[ix].getcrd("C"));
+		crds.push_back(fss[ix].getcrd("CA"));
+		for(auto &ua:uas) {
+			if(ua.first.atoms[0]=="OP" && ua.first.atoms[1]=="CP"
+					&& ua.first.atoms[2]=="CAP") {
+				ua.second.push_back(crds);
+			}
+		}
+	}
+}
+
+void NSPproteinrep::unitinprotein(std::vector<UnitAssemble> &uas,
+		const std::vector<std::vector<FullSite>> &conf) {
+	unitinsidechain(uas, conf);
+	unitinmainchain(uas, conf);
+}
+
+
+

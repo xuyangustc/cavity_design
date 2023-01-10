@@ -1,0 +1,13 @@
+eclipse.preferences.version=1
+encoding//allatom/test/cav_sd.cpp=UTF-8
+encoding//backbone/backbonesite.h=UTF-8
+encoding//sd/forcefield.h=UTF-8
+encoding//sd/genchain.h=UTF-8
+encoding//sd/nnterm.h=UTF-8
+encoding//sd/sdrun.h=UTF-8
+encoding//sd/src/forcefield.cpp=UTF-8
+encoding//sd/src/forcefield_omp.cpp=UTF-8
+encoding//sd/src/genchain.cpp=UTF-8
+encoding//sd/src/nnterm.cpp=UTF-8
+encoding//sd/src/sdrun.cpp=UTF-8
+encoding//sd/src/stochasticdynamics.cpp=UTF-8
